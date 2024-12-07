@@ -1,0 +1,67 @@
+---
+title: "PCA"
+author: "Bibek Sapkota"
+date: "2024-09-05"
+output: html_document
+---
+
+ # Loading the dataset and library
+```{r}
+library(tidyverse)
+```
+
+```{r}
+data("USArrests")
+
+head(USArrests)
+```
+
+# Calculating the Principle Components
+```{r}
+results <- prcomp(USArrests, scale = TRUE)
+results
+```
+```{r}
+results$rotation <- -1*results$rotation
+results$rotation
+```
+Interpretation: Above we can see, the first principal component (PC1) reflects the largest variation in the variables for murder, assault, and rape because it has high values for each of these categories.It is also evident that the second principal component (PC2) has a high value for UrbanPop, indicating that urban population is given primary consideration in this principle component.we have multiply by -1 to reverse the signs
+
+
+```{r}
+results$x <- -1*results$x
+results$x
+```
+
+
+# Visualizing the result
+```{r}
+biplot(results, scale = 0)
+```
+Interpretation: From the above biplot we can see each of the 50 states represented in a simple two-dimensional space. When it comes to the variables in the original dataset, the states that are close to one another on the plot have comparable data patterns.It is also evident that some states have a stronger correlation with specific crimes than others. For example: Georgia, is the state most closely related to the plot's variable Murder.
+
+```{r}
+head(USArrests[order(-USArrests$Murder),])
+```
+
+# Finding Variance
+```{r}
+Var_explained = results$sdev^2 / sum(results$sdev^2)
+Var_explained
+```
+
+```{r}
+
+qplot(c(1:4), Var_explained)+
+  geom_line()+
+  xlab("Principle Component")+
+  ylab("Variance Explained")+
+  ggtitle("Scree Plot")+
+  ylim(0,1)
+```
+
+Interpretation: From the line graph, we can see that as the number of principal components increase. 9666The varience decreases showing an inverse relation between the two.
+
+
+
+

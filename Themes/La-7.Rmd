@@ -1,0 +1,217 @@
+---
+title: "Lab-7"
+author: "Bibek Sapkota"
+output:
+  pdf_document: default
+  html_notebook: default
+---
+
+# Importing Datasets and library
+```{r}
+ToothGrowth$dose <- as.factor(ToothGrowth$dose)
+library(ggplot2)
+```
+
+# Boxplot themes
+```{r}
+p <- ggplot(ToothGrowth, aes(x=dose,y=len))+geom_boxplot()
+p
+```
+Interpretation: Creating a simple graph
+
+
+```{r}
+p + theme_gray()
+```
+Interpretation: theme_gray changes the background colour to gray and gride lines to white
+
+```{r}
+p + theme_bw()
+```
+Interpretation: theme_bw chages the background to white and grid lines to gray.
+
+```{r}
+p + theme_linedraw()
+```
+Interpretation: theme_linedraw creates a black lines around the plot and changes the grid line to black
+
+```{r}
+p + theme_light()
+```
+Interpretation: theme_light creates themes with light gray lines  abd axis
+
+```{r}
+p + theme_minimal()
+```
+Interpretation: theme_minimal creates themes with no background colour
+
+```{r}
+p + theme_classic()
+```
+Interpretation: theme_classic creates themes with axis lines(x-axis & y-axis) with ni grid lines
+
+```{r}
+p + theme_void()
+```
+Interpretation: theme_void creates theme empty, with non-standard coordinates
+
+```{r}
+p + theme_dark()
+```
+Interpretation: theme_dark creates themes with dark background.
+
+```{r}
+p + theme_set(theme_gray(base_size=20))
+```
+Interpretation: theme_set sets the size of all the plot text elements(i.e. base_size=20 sets size to 20)
+
+```{r}
+ggplot(ToothGrowth, aes(x=dose, y=len))+ geom_boxplot()
+```
+
+```{r}
+ggplot(ToothGrowth, aes(x=dose, y=len))+geom_boxplot()+
+  theme_classic(base_size = 25)
+```
+Interpretation: theme_classic creates with axis line and no grid line and then base_size changes the text size to 25.
+
+```{r}
+p+theme(
+  panel.background = element_rect(fill = "lightblue",
+         colour = "lightblue",
+         size = 0.5, linetype = "solid"),
+ panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+         colour = "white"), 
+ panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
+         colour = "white")
+)
+```
+Interpretation: This theme sets a light blue background with white grid lines. The major grid lines are medium thickness, and the minor ones are thinner, both solid white.
+
+```{r}
+p + theme(panel.border = element_blank(),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank())
+```
+Interpretation: This theme removes the panel border and both major and minor grid lines, creating a minimalist and clean plot appearance.
+
+```{r}
+p + theme(panel.border = element_blank(),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          axis.line = element_line(size = 0.5, linetype = "solid", colour="black"))
+```
+Interpretation: This theme removes the panel border and grid lines while adding solid black axis lines with medium thickness. It simplifies the plot while emphasizing the axes.
+
+```{r}
+p+theme(plot.background = element_rect(fill = "darkblue"))
+```
+Interpretation:This theme add darkblue colour to graph.
+
+# Use a custome theme
+```{r}
+#install.packages("ggthemes")
+library(ggthemes)
+```
+
+
+```{r}
+ggplot(diamonds,aes(carat,price))+
+  geom_point()+theme_tufte()
+```
+
+
+```{r}
+p <- ggplot(iris, aes(Sepal.Length, Sepal.Width, colour = Species))+
+ geom_point()
+# Use economist color scales
+p + theme_economist() +
+ ggtitle("Iris data sets")
+```
+Interpretation: This plot uses the theme_economist(inspired by The Economist magazine.) with a light blue background and white grid lines. Points are colored by species, and the title is at the top. 
+
+```{r}
+p + theme_stata()+
+  ggtitle("Iris data")
+```
+Interpretation: This plot uses the theme_stata() for a clean, data-focused appearance inspired by Stata software. 
+
+```{r}
+p + theme_wsj()+
+  ggtitle("Iris data")
+```
+Interpretation: This plot uses the theme_wsj() for a clean, data-focused appearance inspired by various publications and styles.
+
+```{r}
+p + theme_calc()+
+  ggtitle("Iris data")
+```
+Interpretation:  This theme_calc() theme offers a clean and simple design, inspired by Calc, with a focus on readability and minimal visual clutter,
+
+```{r}
+p+ theme_hc()+
+  ggtitle("Iris data")
+```
+Interpretation:  This plot uses the theme_hc() for a clean backgrouns and clear grid lines
+
+# Legend location
+```{r}
+ggplot(mpg,
+ aes(x = displ, y=hwy, color = class)) +
+ geom_point(size = 4) +
+ labs(title = "Diplacement by Highway Mileage") +
+ theme_minimal() +
+ theme(legend.position = "top") 
+```
+Interpretation: This theme_minimal() theme offers a clean design, with minimal background elements and a focus on the data. The legend.position = "top" adjustment places the legend above the plot, ensuring clear and accessible categorization of the data points.
+
+```{r}
+ggplot(mpg,
+ aes(x = displ, y=hwy, color = class)) +
+ geom_point(size = 4) +
+ labs(title = "Diplacement by Highway Mileage",
+ color = "Automobile\nClass") +
+ theme_minimal() +
+ theme(legend.title.align=0.5)
+```
+Interpretation: The theme_minimal() theme provides a simple, clean design that emphasizes the data, while the 'legend.title.align=0.5' centers the legend title.
+
+
+# Labels 
+
+```{r}
+ggplot(mpg,
+ aes(x = displ, y=hwy,
+ color = class,
+ shape = factor(year))) +
+ geom_point(size = 3,
+ alpha = .5) +
+ labs(title = "Mileage by engine displacement",
+ subtitle = "Data from 1999 and 2008",
+ caption = "Source: EPA (http://fueleconomy.gov)",
+ x = "Engine displacement (litres)",
+ y = "Highway miles per gallon",
+ color = "Car Class",
+ shape = "Year") +
+ theme_minimal()
+```
+Interpretation: This theme_minimal() theme provides a clean and straightforward design, focusing on the data with minimal distractions. The use of this theme ensures that the plot’s elements, such as color and shape, are highlighted effectively, enhancing clarity and readability.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

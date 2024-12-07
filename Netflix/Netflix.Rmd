@@ -1,0 +1,226 @@
+---
+title: "Data Visualization Lab-8"
+author: "Bibek Sapkota"
+date: "2024-08-29"
+output: html_document
+---
+
+
+
+```{r}
+#install.packages("tidyverse")
+library("tidyverse")
+```
+
+
+```{r}
+theme_custom_sk_90 <- theme_bw() +  theme(axis.text.x = element_text(size = 18, angle = 90, hjust = 1, vjust = 0.5), axis.text.y = element_text(size = 18),
+                            axis.title = element_text(size = 20),strip.text  = element_text(size = 14))
+
+# Change plot size to 8 x 3
+options(repr.plot.width=12, repr.plot.height=8)
+```
+
+
+```{r}
+df_netflix <- read.csv("netflix_titles.csv")
+df_netflix$date_added <- as.Date(df_netflix$date_added, format = "%B %d, %Y")
+head(df_netflix)
+```
+
+## Finding Unique counts
+
+```{r}
+unique_counts <- apply(df_netflix, MARGIN = 2, FUN = function(x) length(unique(x)))
+unique_counts <- data.frame(Columns = names(unique_counts), UniqueCounts = unique_counts, stringsAsFactors = F)
+unique_counts
+```
+
+```{r}
+unique_counts %>% ggplot(aes(x = Columns, y = UniqueCounts)) + geom_bar(stat = "identity") + 
+labs(title="Number of rows in Input",x="Columnn In Dataset") + theme_bw()
+```
+
+
+## Number of shows available in Netflix as a function of time
+
+```{r}
+df_netflix %>% group_by(date_added,type) %>% summarise(addedToday = n()) %>% ungroup() %>% group_by(type) %>%
+mutate(Total_Number_of_Shows = cumsum(addedToday))
+```
+
+
+```{r}
+df_by_date <- df_netflix %>% group_by(date_added,type) %>% summarise(addedToday = n()) %>% 
+            ungroup() %>% group_by(type) %>% mutate(Total_Number_of_Shows = cumsum(addedToday), label = if_else(date_added == max(date_added,na.rm = T), as.character(type), NA_character_))
+
+
+df_by_date  %>% 
+                ggplot(aes(x = date_added, y = Total_Number_of_Shows, color = type)) + 
+                geom_line(size=4) + ggtitle("Number of Shows added over Time") + scale_x_date(breaks="2 years")
+                theme_bw()
+```
+
+
+## Which countries are producing most shows ?
+
+```{r}
+df_netflix %>%   ggplot(aes(x=country)) + geom_bar() + facet_wrap(.~type)
+```
+
+
+```{r}
+df_netflix %>% ggplot(aes(x=country)) + geom_bar() + facet_wrap(.~type) + coord_cartesian(xlim = c(1,10))
+```
+
+
+```{r}
+df_netflix %>% group_by(type) %>% 
+  mutate(country = fct_infreq(country))  %>% # reordering countries according to their freq
+  ggplot(aes(x=country)) + geom_bar() + facet_wrap(.~type) +
+  coord_cartesian(xlim = c(1,10)) + 
+  scale_x_discrete(labels = function(x){str_wrap(x,20)}, breaks = function(x) {x[1:10]}) +
+  theme_bw()
+```
+
+
+```{r}
+df_netflix %>% group_by(type) %>% 
+  mutate(country = fct_infreq(country)) %>% 
+    ggplot(aes(x = country)) + geom_bar() + facet_wrap(.~type) +
+  coord_cartesian(xlim = c(1,10)) + 
+  scale_x_discrete(labels = function(x){str_wrap(x,20)}, breaks = function(x) {x[1:10]}) +
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+```
+
+
+## Show Categories: Correlations and most frequent
+
+```{r}
+df_netflix %>% 
+                        select(c('show_id','type','listed_in')) %>% 
+                        separate_rows(listed_in, sep = ',')
+```
+
+
+```{r}
+df_show_categories <- df_netflix %>% 
+                        select(c('show_id','type','listed_in')) %>% 
+                        separate_rows(listed_in, sep = ',') %>%
+                        rename(Show_Category = listed_in)
+df_show_categories$Show_Category <- trimws(df_show_categories$Show_Category)
+head(df_show_categories)
+```
+
+## Most frequent Movie/ TV Show Categories
+
+```{r}
+df_show_categories %>% 
+  group_by(type) %>% 
+  mutate(Show_Category = fct_infreq(Show_Category)) %>% 
+  ggplot(aes(x = Show_Category)) + geom_bar() + 
+  facet_wrap(.~type, scales = "free_x") + 
+  theme_bw() + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(title = "Distribution of Show Categories by Type", 
+       x = "Show Category", y = "Count")
+```
+
+
+```{r}
+# Assuming df_show_categories and other related data frames are already loaded
+
+# Create unique category combinations for Movies
+df_unique_categories <- df_show_categories %>%
+    group_by(type, Show_Category) %>%
+    summarise()
+
+df_category_correlations_movies <- expand_grid(
+    type = 'Movie',
+    Category1 = subset(df_unique_categories, type == 'Movie')$Show_Category,
+    Category2 = subset(df_unique_categories, type == 'Movie')$Show_Category
+)
+
+# Calculate matched counts for Movies
+df_category_correlations_movies$matched_count <- apply(
+    df_category_correlations_movies, MARGIN = 1, FUN = function(x) {
+        length(intersect(
+            subset(df_show_categories, type == x['type'] & Show_Category == x['Category1'])$show_id,
+            subset(df_show_categories, type == x['type'] & Show_Category == x['Category2'])$show_id
+        ))
+    }
+)
+
+# Filter out pairs where Category1 is not less than Category2 and matched_count > 0
+df_category_correlations_movies <- subset(df_category_correlations_movies, 
+    (as.character(Category1) < as.character(Category2)) & (matched_count > 0)
+)
+
+# Adjust plot size to be larger
+options(repr.plot.width = 12, repr.plot.height = 8)
+
+# Generate the plot
+ggplot(df_category_correlations_movies, aes(x = Category1, y = Category2, fill = matched_count)) + 
+    geom_tile(color = "white") + 
+    scale_fill_distiller(palette = "Spectral", direction = -1, name = "matched_count") + 
+    theme_minimal(base_size = 12) +
+    theme(
+        axis.text.x = element_text(angle = 90, hjust = 1, size = 10), # Rotate x-axis text and adjust size
+        axis.text.y = element_text(size = 10), # Adjust y-axis text size
+        axis.title.x = element_text(size = 12, face = "bold"), # Add title to the x-axis
+        axis.title.y = element_text(size = 12, face = "bold"), # Add title to the y-axis
+        legend.text = element_text(size = 10), # Adjust legend text size
+        legend.title = element_text(size = 12), # Adjust legend title size
+        plot.title = element_text(size = 14, hjust = 0.5), # Center the title
+        plot.margin = margin(5, 5, 5, 5) # Adjust margins to prevent crowding
+    ) +
+    labs(title = "", fill = "matched_count", 
+         x = "Category1", 
+         y = "Category2")
+```
+
+
+```{r}
+# Generate the plot for TV Shows
+ggplot(subset(df_category_correlations, type == 'TV Show'), 
+       aes(x = Category1, y = Category2, fill = matched_count)) + 
+    geom_tile(color = "white") + 
+    scale_fill_distiller(palette = "Spectral", direction = -1, name = "matched_count") + 
+    theme_minimal(base_size = 12) +
+    theme(
+        axis.text.x = element_text(angle = 90, hjust = 1, size = 10), # Rotate x-axis text and adjust size
+        axis.text.y = element_text(size = 10), 
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        legend.text = element_text(size = 10), 
+        legend.title = element_text(size = 12), 
+        plot.title = element_blank(), 
+        plot.margin = margin(5, 5, 5, 5) 
+    )
+```
+
+## Exploring data related to actors
+
+```{r}
+df_netflix %>% select(c('show_id','cast','director')) %>% 
+        gather(key = 'role', value = 'person', cast, director) %>% 
+             filter(person != "") %>% separate_rows(person, sep = ',') -> df_show_people
+
+df_show_people$person <- trimws(df_show_people$person)
+head(df_show_people)
+```
+
+```{r}
+df_people_freq<- df_show_people %>% group_by(person,role) %>% 
+                    summarise(count = n()) %>% arrange(desc(count))
+
+df_people_freq %>% ... %>% ggplot(aes(x = fct_reorder(person,count,.desc = T), y = count, fill = role)) + 
+            geom_bar(stat = 'identity') + scale_x_discrete() + facet_wrap(~role, scales = 'free_x') + 
+            theme_custom_sk_90 + theme(legend.position = 'none') + labs(x = 'Name of the actor / director')
+```
+
+
+
+
+

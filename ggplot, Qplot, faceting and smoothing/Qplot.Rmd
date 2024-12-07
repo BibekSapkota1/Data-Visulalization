@@ -1,0 +1,126 @@
+---
+title: "Data visualization"
+author: "Bibek Sapkota"
+output: pdf_document
+---
+
+# Data Visualization Lab ggplot2(qplot)
+
+Task 1: Importing ggplot2 library
+```{r}
+library(ggplot2)
+```
+
+## Diamonds Dataset with qplot function
+
+Task: loading the diamonds dataset
+```{r}
+data("diamonds")
+head(diamonds)
+```
+
+Task: Using qplot() to produce a scatterplot showing the relationship between the price and carats of a diamond
+```{r}
+qplot(carat,price,data=diamonds)
+```
+## Variables Transformation
+
+Task: using log function to transform the variables in a way to make the relationship between variablesless sensitive to outliers.
+```{r}
+qplot(log(carat), log(price),data=diamonds)
+```
+
+## Aesthetic attributes (color,shape,size)
+
+Task: creating a smaller dataset from diaminds by randomly sample. 
+```{r}
+set.seed(1000)
+dsmall<-diamonds[sample(nrow(diamonds),100),]
+```
+
+## Color aesthetic
+
+Task: Creating a scatterplot usiing qplot function to show the relationship between the ‘log(carat)’ and ‘log(price)’ of different colours(i.e. ‘color’ variable). 
+```{r}
+qplot(log(carat),log(price),data=dsmall,colour=color)
+```
+Task: create a scatter plot to visualize the relationship between ‘log(carat)’ and ‘log(price)’ of different cuts (i.e. ‘cut’
+variable).This is by mapping ‘cut’ variable to colour aesthetic attribute.
+```{r}
+qplot(log(carat),log(price),data = dsmall,colour=cut)
+```
+
+## Shape aesthetic
+
+Task:create a scatter plot to visualize the relationship between ‘log(carat)’ and ‘log(price)’ of different cuts(i.e.‘cut’ variable) 
+```{r}
+qplot(log(carat),log(price),data = dsmall,shape=cut)
+```
+
+## Exercise 1
+
+### a. Apply what you have done previously to dsmall dataset with other aesthetic attribute such as‘size’.
+
+```{r}
+qplot(log(carat),log(price),data = dsmall,size=clarity)
+```
+
+### b. Investigate the relationship between other variables (using colour, shape and size aesthetics) to see if you can find interesting information.
+
+```{r}
+qplot(log(depth),log(price),data = dsmall,colour=depth)
+```
+```{r}
+qplot(log(x),log(price),data = dsmall,size=x, colour=x)
+```
+
+## Geom 2D
+
+Task: Visualizing the relationship between the natural log of carat and price using a line plot.
+```{r}
+qplot(log(carat),log(price), data = dsmall,geom="line")
+```
+
+## Boxplots ans Jitttered
+
+Task: Visualizing how the price per carat (price/carat) varies across different color grades (color) of diamonds using a jitter plot.
+```{r}
+qplot(color,price/carat, data = diamonds, geom = "jitter")
+```
+Task: Visualizing how the price per carat (price/carat) varies across different color grades (color) of diamonds using a boxplot
+```{r}
+qplot(color,price/carat,data = diamonds,geom = "boxplot")
+```
+
+## Geom 1D
+
+Task: Visualizing the distribution of diamond carat using a histogram
+```{r}
+qplot(carat,data = diamonds,geom = "histogram")
+```
+Task: Visualizing the distribution of diamond carat  using a density plot
+```{r}
+qplot(carat,data = diamonds,geom = "density")
+```
+
+Task: Visualizing how the distribution of diamond carat varies across different color using a density plot
+```{r}
+qplot(carat,data = diamonds,geom = "density",colour=color)
+```
+
+Task: Visualizing the distribution of diamond carat varies across different color using a filled histogram
+```{r}
+qplot(carat,data = diamonds,geom = "histogram",fill=color)
+```
+Task: Visualizing the relationship between diamond carat and price using a scatter plot,
+```{r}
+qplot(carat,price,data = dsmall,xlab = "Price $", ylab = "Weight (carat)", main = "Price-Weight Relationship")
+```
+
+## Exercise 2
+
+### a.Apply bar geoms to show the colour distribution of diamonds in dsmall dataset to see if you can findinteresting relationships.
+```{r}
+qplot(color,data = dsmall,geom = "bar",xlab="Diamond Color Grade",ylab = "Count",main = "Color Distribution of Diamonds in dsmall")
+```
+

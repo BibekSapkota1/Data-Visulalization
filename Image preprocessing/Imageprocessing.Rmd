@@ -1,0 +1,201 @@
+---
+title: "Image Processing"
+author: "Bibek Sapkota"
+date: "2024-09-08"
+output: html_document
+---
+
+# Installing and Loading the packages
+```{r}
+#install.packages('magick')
+#install.packages("imager")
+library(magick)
+library(imager)
+```
+
+# Read / Write images
+```{r}
+local_path <- "VanE..jpg"
+inp_img <- image_read(local_path)
+```
+
+Task 1: Viewing the info of image (i.e. format, width, height, density, etc)
+```{r}
+image_info(inp_img)
+```
+Task 2: Ploting the image
+```{r}
+plot(inp_img)
+```
+
+```{r}
+image_browse(inp_img)
+```
+
+Task 3: Writing the image in desier place
+```{r}
+#image_write(inp_img, path = 'C:/Users/binod/OneDrive/Documents/(4th sem) Data_Science/Data Visulalization/Week-11/hell.png')
+```
+
+Task 4: Changing the image format.
+```{r}
+inp_img_png <- image_convert(inp_img, format = 'png')
+```
+
+# Image Enhancements
+
+```{r}
+mod_img <- image_modulate(inp_img, brightness = 120, saturation = 20, hue =
+20)
+plot(mod_img)
+```
+
+# Image Transformation
+
+```{r}
+img <- image_scale(inp_img, "150x150")
+img
+plot(img)
+```
+
+```{r}
+img <- image_crop(inp_img, "x350")
+img
+plot(img)
+```
+
+```{r}
+img <- image_crop(inp_img, "+150+50")
+img
+plot(img)
+```
+
+# Applying Filters
+
+```{r}
+Filter <- image_blur(inp_img,10,5)
+plot(Filter)
+```
+
+```{r}
+Filter <- image_noise(inp_img)
+plot(Filter)
+```
+
+```{r}
+image <- inp_img
+```
+
+
+```{r}
+Filter <- image_despeckle(image, times = 1L)
+plot(Filter)
+```
+
+
+```{r}
+Filter <- image_reducenoise(image, radius = 1L)
+  plot(Filter)
+```
+
+```{r}
+Filter <- image_noise(image, noisetype = "gaussian")
+  plot(Filter)
+```
+
+```{r}
+Filter <- image_blur(image, radius = 1, sigma = 0.5)
+  plot(Filter)
+```
+
+```{r}
+Filter <- image_charcoal(image, radius = 1, sigma = 0.5)
+  plot(Filter)
+```
+
+```{r}
+Filter <- image_edge(image, radius = 1)
+  plot(Filter)
+```
+
+```{r}
+Filter <- image_oilpaint(image, radius = 1)
+  plot(Filter)
+```
+
+```{r}
+Filter <- image_emboss(image, radius = 1, sigma = 0.5)
+  plot(Filter)
+```
+
+```{r}
+Filter <- image_implode(image, factor = 0.5)
+  plot(Filter)
+```
+
+
+```{r}
+Filter <- image_negate(image)
+  plot(Filter)
+```
+
+```{r}
+Filter <- image_convolve(image, kernel = "Gaussian", iterations = 1, scaling = NULL, bias = NULL)
+  plot(Filter)
+```
+
+# Image Vectors
+
+```{r}
+earth <- image_read("https://jeroen.github.io/images/earth.gif")
+earth <- image_scale(earth, "200")
+length(earth)
+print(earth)
+```
+
+```{r}
+rev(earth) %>%
+image_flip() %>%
+image_annotate("processed video", size = 20, color = "white")
+```
+
+# Plot and load images
+
+```{r}
+mean(boats)
+sd(boats)
+log(boats)
+```
+
+# Image histogram
+
+```{r}
+hist(R(boats))
+hist(G(boats))
+hist(B(boats))
+```
+
+# Working with ggplot2
+
+```{r}
+a<-as.data.frame(boats)
+```
+
+
+```{r}
+a<-magick2cimg(inp_img)
+```
+
+
+```{r}
+inp_img <- image_read("https://www.catster.com/wp-content/uploads/2017/08/A-fluffy-cat-looking-funny-surprised-or-concerned.jpg")
+```
+
+
+```{r}
+View(a)
+qplot(value, data = a, facets = cc ~ ., geom = "histogram")
+```
+
+
+
